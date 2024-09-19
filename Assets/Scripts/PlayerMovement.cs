@@ -1,6 +1,7 @@
+using UnityEditor.Animations;
 using UnityEngine;
 
-public class SimplePointClickMovement : MonoBehaviour
+public class PLayerMovement : MonoBehaviour
 {
     public float moveSpeed = 0.5f;
     public float minYPosition = -4.5f;
@@ -8,6 +9,13 @@ public class SimplePointClickMovement : MonoBehaviour
     private float targetYPosition;
     private float targetXPosition;
     private bool isMoving = false;
+    public Transform childTransform;
+    public GameObject lights;
+    private float timer =0f;
+    private float flickerInterval = 0.45f;
+    private int i=0;
+    public bool lighton;
+    public Animator anim;
 
     void Update()
     {
@@ -15,23 +23,46 @@ public class SimplePointClickMovement : MonoBehaviour
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             mousePosition.z = 0; 
+            
 
             if (CheckMouseClickPosition(mousePosition))
             {
                 targetYPosition = mousePosition.y;
                 targetXPosition = mousePosition.x;
                 isMoving = true;
+                anim.SetBool("isMove", true);
             }
-            else
-            {
-                Debug.Log("Click position is not valid.");
             }
-        }
 
-        if (isMoving)
-        {
-            MoveToTarget();
+            if (isMoving)
+            {
+                MoveToTarget();
+            } 
+
+            timer += Time.deltaTime;
+            if(transform.position.y > -3){
+                lighton = true;
+            }
+            if(lighton){
+                timer += Time.deltaTime;
+                if (timer >= flickerInterval){
+                    if(i%2==0){
+                        lights.SetActive(true);
+                    }
+                    else{
+                        lights.SetActive(false);
+                    }
+                    timer = 0f;
+                    if(i == 6){
+                        flickerInterval=0.6f;
+                    }
+                    if(i ==10){
+                        flickerInterval = 100f;
+                    }
+                    i++;
+                }
         }
+        
     }
 
     bool CheckMouseClickPosition(Vector3 mousePosition)
@@ -54,15 +85,16 @@ public class SimplePointClickMovement : MonoBehaviour
         float scaleFactor = 1 - (currentPosition.y + 4) / 10;
         scaleFactor = Mathf.Clamp(scaleFactor, 0.1f, 1f);
 
-        float scaleX = 1f * scaleFactor;
-        float scaleY = 1.8f * scaleFactor;
+        float scaleX = 0.3f * scaleFactor;
+        float scaleY = 0.3f * scaleFactor;
 
-        transform.localScale = new Vector3(scaleX, scaleY, transform.localScale.z);
+        childTransform.localScale = new Vector3(scaleX, scaleY, transform.localScale.z);
 
         if (Mathf.Abs(currentPosition.y - targetYPosition) < 0.1f &&
             Mathf.Abs(currentPosition.x - targetXPosition) < 0.1f)
         {
             isMoving = false;
+            anim.SetBool("isMove", false);
         }
     }
 }
