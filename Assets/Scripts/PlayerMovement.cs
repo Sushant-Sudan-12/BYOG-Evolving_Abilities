@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class SimplePointClickMovement : MonoBehaviour
 {
-    public float moveSpeed = 5f;
-    public float minYPosition = -5f;
+    public float moveSpeed = 0.5f;
+    public float minYPosition = -4.5f;
 
     private float targetYPosition;
     private float targetXPosition;
@@ -14,7 +14,7 @@ public class SimplePointClickMovement : MonoBehaviour
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePosition.z = 0; // Set Z to 0 for 2D
+            mousePosition.z = 0; 
 
             if (CheckMouseClickPosition(mousePosition))
             {
@@ -44,16 +44,13 @@ public class SimplePointClickMovement : MonoBehaviour
     {
         Vector3 currentPosition = transform.position;
 
-        // Smoothly move towards the target Y position
         currentPosition.y = Mathf.MoveTowards(currentPosition.y, targetYPosition, moveSpeed * Time.deltaTime);
         currentPosition.y = Mathf.Max(currentPosition.y, minYPosition);
 
-        // Smoothly move towards the target X position
         currentPosition.x = Mathf.MoveTowards(currentPosition.x, targetXPosition, moveSpeed * Time.deltaTime);
 
         transform.position = currentPosition;
 
-        // Calculate the new scale based on the Y position to simulate perspective
         float scaleFactor = 1 - (currentPosition.y + 4) / 10;
         scaleFactor = Mathf.Clamp(scaleFactor, 0.1f, 1f);
 
@@ -62,7 +59,6 @@ public class SimplePointClickMovement : MonoBehaviour
 
         transform.localScale = new Vector3(scaleX, scaleY, transform.localScale.z);
 
-        // Stop moving if close enough to target Y position
         if (Mathf.Abs(currentPosition.y - targetYPosition) < 0.1f &&
             Mathf.Abs(currentPosition.x - targetXPosition) < 0.1f)
         {
