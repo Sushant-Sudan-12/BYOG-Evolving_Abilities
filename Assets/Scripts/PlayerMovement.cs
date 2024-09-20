@@ -1,10 +1,11 @@
 using UnityEditor.Animations;
 using UnityEngine;
 
-public class PLayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
     public float moveSpeed = 0.5f;
     public float minYPosition = -4.5f;
+    public Rigidbody2D rb;
 
     private float targetYPosition;
     private float targetXPosition;
@@ -14,11 +15,35 @@ public class PLayerMovement : MonoBehaviour
     private float timer =0f;
     private float flickerInterval = 0.45f;
     private int i=0;
-    public bool lighton;
+    private bool lighton;
     public Animator anim;
+    public static PlayerMovement instance;
+    public string areaTransitionName;
 
+    private void Awake() {
+        if(instance == null) {
+            instance = this;
+           
+        }
+
+    }
     void Update()
     {
+        if(targetXPosition-transform.position.x<0)
+            anim.SetFloat("moveX",1);
+        else if(targetXPosition-transform.position.x>0)
+            anim.SetFloat("moveX",-1);
+
+        if(targetYPosition-transform.position.y<0)
+            anim.SetFloat("moveY",1);
+        else if(targetYPosition-transform.position.y>0)
+            anim.SetFloat("moveY",-1);
+
+        if(Input.GetAxisRaw("Horizontal")==1||Input.GetAxisRaw("Vertical")==1||Input.GetAxisRaw("Horizontal")==-1||Input.GetAxisRaw("Vertical")==-1){
+            anim.SetFloat("lastMoveX",Input.GetAxisRaw("Horizontal"));
+            anim.SetFloat("lastMoveY",Input.GetAxisRaw("Vertical"));
+        }
+
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mousePosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -57,7 +82,7 @@ public class PLayerMovement : MonoBehaviour
                         flickerInterval=0.6f;
                     }
                     if(i ==10){
-                        flickerInterval = 100f;
+                        flickerInterval = 1000f;
                     }
                     i++;
                 }
@@ -74,6 +99,7 @@ public class PLayerMovement : MonoBehaviour
     void MoveToTarget()
     {
         Vector3 currentPosition = transform.position;
+        
 
         currentPosition.y = Mathf.MoveTowards(currentPosition.y, targetYPosition, moveSpeed * Time.deltaTime);
         currentPosition.y = Mathf.Max(currentPosition.y, minYPosition);
